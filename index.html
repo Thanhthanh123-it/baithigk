@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile - Nguyễn Văn A</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      min-height: 100vh;
+      background-color: #f4f6f9;
+    }
+
+    .sidebar {
+      width: 30%; /* Tỉ lệ 3:7 */
+      background-color: #1f2a44;
+      color: white;
+      padding: 20px;
+      position: fixed;
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .sidebar.collapsed {
+      width: 80px;
+    }
+
+    .sidebar .logo {
+      display: block; /* Logo trên một dòng riêng */
+      margin-bottom: 20px;
+    }
+
+    .sidebar .logo img {
+      width: 100%;
+      max-width: 80px; /* To bằng khung sidebar khi thu gọn */
+      height: auto;
+      border-radius: 50%; /* Hình tròn */
+      display: block;
+      margin: 0 auto 10px; /* Căn giữa logo và cách tên bên dưới */
+    }
+
+    .sidebar .logo-name-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sidebar.collapsed .logo-name {
+      display: none;
+    }
+
+    .hamburger {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .sidebar ul {
+      list-style: none;
+    }
+
+    .sidebar ul li {
+      margin: 20px 0;
+    }
+
+    .sidebar ul li a {
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-radius: 8px;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .sidebar ul li a:hover {
+      background-color: #34495e;
+      transform: translateX(5px);
+    }
+
+    .sidebar ul li a.active {
+      background-color: #34495e;
+    }
+
+    .sidebar ul li a i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar.collapsed ul li a span {
+      display: none;
+    }
+
+    .main-content {
+      margin-left: 30%; /* Tỉ lệ 3:7 */
+      padding: 20px;
+      width: 70%;
+      transition: all 0.3s ease;
+    }
+
+    .main-content.expanded {
+      margin-left: 80px;
+      width: calc(100% - 80px);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #1f2a44;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .theme-toggle:hover {
+      transform: rotate(180deg);
+    }
+
+    .section {
+      display: none;
+      margin-top: 20px;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .section.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #intro p {
+      font-size: 1.7em;
+      margin-bottom: 15px;
+      color: #666;
+    }
+
+    body.dark-mode #intro p {
+      color: #ccc;
+    }
+
+    #skills .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .skills-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .skill {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .skill span {
+      width: 120px;
+      font-weight: bold;
+      color: #1f2a44;
+    }
+
+    .bar {
+      flex: 1;
+      height: 10px;
+      background-color: #e0e0e0;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .bar.html {
+      background: linear-gradient(to right, #ff6b6b 90%, #e0e0e0 90%);
+    }
+
+    .bar.css {
+      background: linear-gradient(to right, #4facfe 80%, #e0e0e0 80%);
+    }
+
+    .bar.js {
+      background: linear-gradient(to right, #00d2fc 70%, #e0e0e0 70%);
+    }
+
+    .bar.git {
+      background: linear-gradient(to right, #ff9f1a 60%, #e0e0e0 60%);
+    }
+
+    #projects .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    #projects .slider {
+      position: relative;
+      width: 700px;
+      height: 400px;
+      overflow: hidden;
+    }
+
+    #projects .slides {
+      display: flex;
+      transition: transform 0.3s ease;
+    }
+
+    #projects .slide {
+      min-width: 300px;
+      height: 400px;
+      background: #fff;
+      border-radius: 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin: 0 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    #projects .slide img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    #projects .slide h3 {
+      margin: 0 0 10px;
+    }
+
+    #projects .slide p {
+      color: #999;
+      margin: 0;
+      flex-grow: 1;
+    }
+
+    #projects .slide .icon {
+      font-size: 24px;
+      color: #007bff;
+    }
+
+    #projects .buttons {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      transform: translateY(-50%);
+    }
+
+    #projects .buttons button {
+      background: rgba(0, 0, 0, 0.5);
+      border: none;
+      color: white;
+      padding: 10px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    #projects .dots {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+    }
+
+    #projects .dots span {
+      width: 10px;
+      height: 10px;
+      background: #bbb;
+      border-radius: 50%;
+      margin: 0 5px;
+      cursor: pointer;
+    }
+
+    #projects .dots .active {
+      background: #007bff;
+    }
+
+    #contact .contact-info {
+      margin-top: 20px;
+    }
+
+    #contact .contact-info p {
+      margin: 15px 0;
+      color: #666;
+    }
+
+    #contact .contact-info a {
+      color: #4facfe;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    #contact .contact-info a:hover {
+      color: #ff6b6b;
+    }
+
+    body.dark-mode {
+      background-color: #1a1a1a;
+      color: white;
+    }
+
+    body.dark-mode .sidebar {
+      background-color: #151e2f;
+    }
+
+    body.dark-mode .header {
+      background-color: #151e2f;
+    }
+
+    body.dark-mode .section {
+      background-color: #252526;
+      box-shadow: 0 4px 6px rgba(255,255,255,0.05);
+    }
+
+    body.dark-mode .skill span,
+    body.dark-mode #projects .slide h3 {
+      color: white;
+    }
+
+    body.dark-mode #projects .slide p,
+    body.dark-mode .contact-info p {
+      color: #ccc;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 80px;
+      }
+
+      .sidebar .logo-name,
+      .sidebar ul li a span {
+        display: none;
+      }
+
+      .main-content {
+        margin-left: 80px;
+        width: calc(100% - 80px);
+      }
+
+      .hamburger {
+        display: block;
+      }
+
+      #projects .slider {
+        width: 100%;
+        height: auto;
+      }
+
+      #projects .slide {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar" id="sidebar">
+    <div class="logo">
+      <img src="images/logo.jpg" alt="Logo">
+      <div class="logo-name-container">
+        <button class="hamburger" id="hamburger">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h2 class="logo-name">Nguyễn Văn A</h2>
+      </div>
+    </div>
+    <ul>
+      <li><a href="#intro" class="active" onclick="showSection('intro')"><i class="fas fa-user"></i><span>Giới thiệu</span></a></li>
+      <li><a href="#skills" onclick="showSection('skills')"><i class="fas fa-code"></i><span>Kỹ năng</span></a></li>
+      <li><a href="#projects" onclick="showSection('projects')"><i class="fas fa-project-diagram"></i><span>Dự án</span></a></li>
+      <li><a href="#contact" onclick="showSection('contact')"><i class="fas fa-envelope"></i><span>Liên hệ</span></a></li>
+    </ul>
+  </div>
+
+  <div class="main-content" id="main-content">
+    <div class="header">
+      <h1 id="header-title">Giới thiệu</h1>
+      <button class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-moon"></i>
+      </button>
+    </div>
+
+    <div class="section active" id="intro">
+      <h2>Giới thiệu bản thân</h2>
+      <p>Xin chào thầy cô và các anh/chị,</p>
+      <p>Em tên là Nguyễn Văn A, hiện là sinh viên năm hai ngành Công nghệ Thông tin tại trường [Tên trường đại học]. Trong quá trình học tập và định hướng nghề nghiệp, em đặc biệt yêu thích lĩnh vực phát triển web, và hiện đang tập trung học các ngôn ngữ nền tảng gồm HTML, CSS và JavaScript.</p>
+      <p>HTML giúp em hiểu cách cấu trúc nội dung của một trang web, CSS giúp em thiết kế giao diện đẹp và thân thiện với người dùng, còn JavaScript mở ra khả năng tạo ra các tính năng tương tác, mang lại trải nghiệm sinh động cho người dùng. Em đang kết hợp việc học trên lớp cùng với các khóa học online, dự án nhỏ cá nhân và thực hành xây dựng các website đơn giản để rèn luyện kỹ năng.</p>
+      <p>Mục tiêu ngắn hạn của em là nắm vững kiến thức nền tảng về frontend và từng bước tiếp cận các công nghệ nâng cao như ReactJS, Bootstrap, hoặc tích hợp API. Em mong muốn trong thời gian tới có thể tham gia vào các dự án thực tế hoặc thực tập tại các công ty công nghệ để áp dụng những gì đã học vào môi trường làm việc chuyên nghiệp.</p>
+      <p>Em tin rằng việc học HTML, CSS và JavaScript là nền móng vững chắc giúp em phát triển sự nghiệp trong lĩnh vực công nghệ, đồng thời đóng góp những sản phẩm hữu ích và sáng tạo cho cộng đồng.</p>
+      <p>Em xin chân thành cảm ơn quý thầy cô và các anh/chị đã lắng nghe phần chia sẻ của em.</p>
+    </div>
+
+    <div class="section" id="skills">
+      <div class="container">
+        <h2>Kỹ năng</h2>
+        <div class="skills-list">
+          <div class="skill"><span>HTML</span><div class="bar html"></div></div>
+          <div class="skill"><span>CSS</span><div class="bar css"></div></div>
+          <div class="skill"><span>JavaScript</span><div class="bar js"></div></div>
+          <div class="skill"><span>Git & GitHub</span><div class="bar git"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="projects">
+      <div class="container">
+        <h2>Dự án</h2>
+        <div class="slider">
+          <div class="slides">
+            <div class="slide">
+              <img src="images/designer.jpg" alt="Designer">
+              <h3 style="color: #ff6f61;">Designer</h3>
+              <p>Hình ảnh chỉ là bề nổi — chúng tôi tạo nên trải nghiệm thị giác đầy cảm xúc và sáng tạo!</p>
+              <span class="icon">⦿</span>
+            </div>
+            <div class="slide">
+              <img src="images/developer.jpg" alt="Developer">
+              <h3 style="color: #6b48ff;">Developer</h3>
+              <p>Không chỉ viết code — chúng tôi xây dựng giải pháp!</p>
+              <span class="icon">⦿</span>
+            </div>
+            <div class="slide">
+              <img src="images/marketer.jpg" alt="Marketer">
+              <h3 style="color: #ff9f43;">Marketer</h3>
+              <p>Không chỉ quảng bá — chúng tôi kết nối thương hiệu với trái tim khách hàng!</p>
+              <span class="icon">⦿</span>
+            </div>
+          </div>
+          <div class="buttons">
+            <button onclick="prevSlide()">←</button>
+            <button onclick="nextSlide()">→</button>
+          </div>
+          <div class="dots"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="contact">
+      <div class="container">
+        <h2>Liên hệ</h2>
+        <div class="contact-info">
+          <p><strong>Email:</strong> <a href="mailto:nguyenvana@gmail.com">nguyenvana@gmail.com</a></p>
+          <p><strong>Facebook:</strong> <a href="https://fb.com/nguyenvana" target="_blank">fb.com/nguyenvana</a></p>
+          <p><strong>GitHub:</strong> <a href="https://github.com/nguyenvana" target="_blank">github.com/nguyenvana</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+    const hamburger = document.getElementById('hamburger');
+
+    hamburger.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      mainContent.classList.toggle('expanded');
+    });
+
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      themeToggle.innerHTML = document.body.classList.contains('dark-mode') 
+        ? '<i class="fas fa-sun"></i>' 
+        : '<i class="fas fa-moon"></i>';
+    });
+
+    // Section toggle
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active');
+      });
+      document.querySelectorAll('.sidebar ul li a').forEach(link => {
+        link.classList.remove('active');
+      });
+      document.getElementById(sectionId).classList.add('active');
+      document.querySelector(`a[href="#${sectionId}"]`).classList.add('active');
+      document.getElementById('header-title').textContent = document.querySelector(`a[href="#${sectionId}"] span`).textContent;
+    }
+
+    // Slider functionality for projects
+    let currentSlide = 0;
+    const slides = document.querySelector('#projects .slides');
+    const totalSlides = document.querySelectorAll('#projects .slide').length;
+    const dots = document.querySelector('#projects .dots');
+
+    for (let i = 0; i < totalSlides; i++) {
+      const dot = document.createElement('span');
+      dot.addEventListener('click', () => goToSlide(i));
+      dots.appendChild(dot);
+    }
+    updateDots();
+
+    function updateDots() {
+      document.querySelectorAll('#projects .dots span').forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentSlide);
+      });
+    }
+
+    function goToSlide(index) {
+      currentSlide = index;
+      if (currentSlide < 0) currentSlide = totalSlides - 1;
+      if (currentSlide >= totalSlides) currentSlide = 0;
+      slides.style.transform = `translateX(-${currentSlide * 310}px)`;
+      updateDots();
+    }
+
+    function nextSlide() {
+      goToSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      goToSlide(currentSlide - 1);
+    }
+
+    setInterval(nextSlide, 3000);
+
+    // Initialize with intro section
+    showSection('intro');
+  </script>
+</body>
+</html>
